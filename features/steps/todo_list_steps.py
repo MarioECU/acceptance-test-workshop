@@ -1,19 +1,11 @@
+import sys
+from io import StringIO
 import os
-import json
+sys.path.append(os.path.abspath('../../'))
+from main import load_tasks, save_tasks, list_tasks
 from behave import given, when, then
 
 TASK_FILE = "tasks.json"
-
-# Helper functions
-def load_tasks():
-    if os.path.exists(TASK_FILE):
-        with open(TASK_FILE, "r") as file:
-            return json.load(file)
-    return []
-
-def save_tasks(tasks):
-    with open(TASK_FILE, "w") as file:
-        json.dump(tasks, file, indent=4)
 
 # Given Steps
 @given('the to-do list is empty')
@@ -49,8 +41,16 @@ def step_when_user_adds_task(context, task_title):
 
 @when('the user lists all tasks')
 def step_when_user_lists_all_tasks(context):
-    tasks = load_tasks()
-    context.task_output = tasks
+    captured_output = StringIO()
+    sys.stdout = captured_output
+
+    try:
+        list_tasks(load_tasks())
+    finally:
+        # Restore the original stdout
+        sys.stdout = sys.__stdout__
+
+    context.task_output = captured_output.getvalue().strip()
 
 @when('the user marks task "{task_title}" as completed')
 def step_when_user_marks_task_completed(context, task_title):
@@ -73,8 +73,11 @@ def step_then_to_do_list_should_contain_task(context, task_title):
 
 @then('the output should contain')
 def step_then_output_should_contain(context):
-    # TODO
-    assert False
+    expected_output = context.text.strip()  # Multiline string from the feature file
+    # Comparing
+    assert context.task_output == expected_output, (
+        f"Expected:\n{expected_output}\n\nGot:\n{context.task_output}"
+    )
 
 @then('the to-do list should show task "{task_title}" as completed')
 def step_then_task_should_be_completed(context, task_title):
