@@ -3,6 +3,7 @@ import json
 # File to save tasks
 TASK_FILE = "tasks.json"
 
+
 # Load tasks from file
 def load_tasks():
     try:
@@ -11,10 +12,12 @@ def load_tasks():
     except FileNotFoundError:
         return []
 
+
 # Save tasks to file
 def save_tasks(tasks):
     with open(TASK_FILE, "w") as file:
         json.dump(tasks, file, indent=4)
+
 
 # Add a new task
 def add_task(tasks):
@@ -27,11 +30,12 @@ def add_task(tasks):
         "description": description,
         "due_date": due_date,
         "priority": priority,
-        "status": "Pending"
+        "status": "Pending",
     }
     tasks.append(task)
     save_tasks(tasks)
     print("Task added successfully!\n")
+
 
 # List all tasks
 def list_tasks(tasks):
@@ -43,6 +47,7 @@ def list_tasks(tasks):
     # print only title
     for t in tasks:
         print(f"- {t['title']}")
+
 
 # Mark a task as completed
 def mark_task_completed(tasks):
@@ -61,14 +66,19 @@ def mark_task_completed(tasks):
     except ValueError:
         print("Please enter a valid number!\n")
 
+
 # Clear all tasks
 def clear_tasks():
-    confirm = input("Are you sure you want to clear all tasks? (yes/no): ").strip().lower()
+    confirm = (
+        input("Are you sure you want to clear all tasks? (yes/no): ")
+        .strip().lower()
+    )
     if confirm == "yes":
         save_tasks([])
         print("All tasks cleared!\n")
     else:
         print("Action canceled.\n")
+
 
 # Main menu
 def main():
@@ -99,6 +109,6 @@ def main():
         else:
             print("Invalid choice! Please try again.\n")
 
+
 if __name__ == "__main__":
     main()
-
